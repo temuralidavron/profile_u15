@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>My Profile</h1>
+
+{% if profile.image %}
+    <img src="{{ profile.image.url }}" width="200">
+{% else %}
+    <img src="{% static 'image/personcha.png' %}" width="200">
+{% endif %}
+
+<p>My USERNAME: {{ profile.user.username }}</p>
+<p>My Phone nums: {{ profile.user.phone }}</p>
+<p>My AGE: {{ profile.age }}</p>
+<p>My bio: {{ profile.bio }}</p>
+<a href="{% url 'update' %}">Edit profile</a>
+{% endblock %}
