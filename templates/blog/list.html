@@ -2,8 +2,10 @@
 {% block content %}
 <a href="{% url 'create-blog' %}">BLOG CREATE</a>
 {% for blog in blogs %}
-<p>Title:{{ blog.title }}</p>
+<p><a href="{% url 'detail-blog' blog.pk  %}">Title:{{ blog.title }}</a></p>
+<p>description:{{ blog.description }}</p>
 <p>AUthor:{{ blog.owner.username }}</p>
+
 <hr>
 {% endfor %}
 
