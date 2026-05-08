@@ -1,5 +1,6 @@
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render,redirect
-
+# from accounts.utils import send_simple_email
 from accounts.permissions import login_user, admin_permission
 from .models import Blog
 from .forms import BlogForm
@@ -50,10 +51,12 @@ def update_blog(request,pk):
 
 
 def detail_blog(request,pk):
+    # send_simple_email()
     blogs=Blog.objects.get(pk=pk)
     return render(request,'blog/detail.html',{'blog':blogs})
 
-@admin_permission
+# @admin_permission
+@permission_required('blog.delete_post', login_url='list')
 def delete_blog(request,pk):
     blog=Blog.objects.get(pk=pk)
 

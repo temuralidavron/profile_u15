@@ -1,5 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from datetime import timedelta, datetime
+
+from accounts.utils import verification_code
+
 
 class UserRole(models.TextChoices):
     ADMIN = 'admin', 'Admin'
@@ -16,7 +20,10 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-
+class Code(models.Model):
+    user=models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name='codes')
+    code=models.CharField(max_length=6,default=verification_code)
+    expire_date=models.DateTimeField(default=datetime.now() + timedelta(minutes=2))
 
 class Profile(models.Model):
     user=models.OneToOneField(CustomUser,on_delete=models.CASCADE,related_name='profile')

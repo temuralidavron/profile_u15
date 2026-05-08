@@ -1,5 +1,9 @@
+from captcha.fields import CaptchaField
 from django import forms
-from .models import CustomUser,Profile
+from django.contrib.auth.models import Group
+
+from .models import CustomUser, Profile, UserRole
+
 
 class RegisterForm(forms.ModelForm):
     class Meta:
@@ -26,6 +30,7 @@ class RegisterForm(forms.ModelForm):
 class LoginForm(forms.Form):
     username=forms.CharField(max_length=300)
     password=forms.CharField(max_length=300)
+    captcha=CaptchaField()
 
 
 class UpdateProfileForm(forms.ModelForm):
@@ -37,3 +42,41 @@ class UpdateProfileForm(forms.ModelForm):
             'bio',
 
         ]
+
+
+class ChangeRoleUser(forms.Form):
+    user = forms.ModelChoiceField(
+        queryset=CustomUser.objects.all(),
+        label="Select User",
+        empty_label="-- Select User --"
+    )
+    role = forms.ChoiceField(
+        choices=UserRole.choices,
+        required=True,
+        # Optional: set a default
+        initial=UserRole.VIEWER
+    )
+
+class UserAddGroupForm(forms.Form):
+    user = forms.ModelChoiceField(
+        queryset=CustomUser.objects.all(),
+        label="Select User",
+        empty_label="-- Select User --"
+    )
+    group = forms.ModelChoiceField(
+        queryset=Group.objects.all(),
+        label="Select Groups",
+        empty_label="-- Select Group --"
+    )
+
+
+
+class ForgetPasswordForm(forms.Form):
+    username=forms.CharField(max_length=300)
+    email=forms.CharField(max_length=300)
+
+
+class DonePasswordForm(forms.Form):
+    code=forms.CharField(max_length=6)
+    password=forms.CharField(max_length=150)
+    re_password=forms.CharField(max_length=150)

@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 <a href="{% url 'update-blog' blog.pk %}">Update</a>
+{% if request.user.is_authenticated %}
+  {% if perms.blog.delete_post %}
+
 <a href="{% url 'delete-blog' blog.pk %}">delete</a>
+{% endif %}
+{% endif %}
 <p>Title:{{ blog.title }}</p>
 <p>description:{{ blog.description }}</p>
 <p>AUthor:{{ blog.owner.username }}</p>

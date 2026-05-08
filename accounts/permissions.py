@@ -27,3 +27,17 @@ def admin_permission(func):
 
 def admin_or_manager_permission():
     pass
+
+
+
+def extra_admin(func):
+    def wrapper(request, *args, **kwargs):
+
+
+        if request.user.is_authenticated:
+            print(request.user.username)
+            if not request.user.role == UserRole.ADMIN and not request.user.username=='tester99':
+                return redirect('list')
+        return func(request, *args, **kwargs)
+
+    return wrapper

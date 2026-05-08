@@ -1,8 +1,16 @@
 from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 from django.shortcuts import render,redirect
 
-from accounts.forms import RegisterForm, LoginForm,UpdateProfileForm
-from .models import Profile
+from accounts.forms import RegisterForm, LoginForm, UpdateProfileForm, ChangeRoleUser, UserAddGroupForm, \
+    ForgetPasswordForm, DonePasswordForm
+from .models import Profile, CustomUser, Code
+from .utils import send_html_email
+
+
+# from .permissions import extra_admin
+
 
 # Create your views here.
 def register_view(request):
@@ -72,4 +80,63 @@ def update_profile(request):
 
 
 
+# @extra_admin
+def change_role_user(request):
+    if request.method=='POST':
+        form=ChangeRoleUser(request.POST)
+        if form.is_valid():
+            user=form.cleaned_data.get('user')
+            role=form.cleaned_data.get('role')
+            user.role=role
+            user.save()
+            return redirect('list')
+    else:
+        form=ChangeRoleUser()
+    return render(request,'accounts/change.html',{'form':form})
+
+@login_required
+def user_add_group(request):
+    if request.method=='POST':
+        form=UserAddGroupForm(request.POST)
+        if form.is_valid():
+
+            user=form.cleaned_data.get('user')
+            print(user,type(user))
+            group=form.cleaned_data.get('group')
+            # customuser=CustomUser.objects.get(user=user)
+            # groups=Group.objects.get(group=group)
+            # if customuser is not None and groups is not None:
+            # group.add(user)
+            user.groups.add(group)
+            return redirect('list')
+    else:
+        form=UserAddGroupForm()
+    return render(request,'accounts/change.html',{'form':form})
+
+
+
+def forget_password(request):
+    if request.method=='POST':
+        form = ForgetPasswordForm(request.POST)
+        if form.is_valid():
+            username=form.cleaned_data.get("username")
+            email=form.cleaned_data.get("email")
+            user=CustomUser.objects.filter(username=username,email=email).first()
+            if user:
+                code=Code.objects.create(user=user)
+                send_html_email(code.code,user.email,user.username)
+                return redirect('send')
+            else:
+                redirect('login')
+
+    else:
+        form=ForgetPasswordForm()
+    return render(request,"accounts/forget.html",{'form':form})
+
+
+
+def done_password(request):
+    name=request.GET.get('name')
+    form=DonePasswordForm()
+    return render(request,"accounts/done.html",{'form':form})
 
