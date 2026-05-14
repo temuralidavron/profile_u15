@@ -24,6 +24,14 @@
                 <a href="{% url 'login' %}" class="btn btn-outline-primary">login</a>
 
         {% endif %}
+        <form method="GET">
+
+    <input type="text" name="q" placeholder="Mahsulotni qidiring..."
+                    value="{{ query }}">
+
+    <button type="submit">Qidirish</button>
+
+</form>
     </nav>
     <hr>
 

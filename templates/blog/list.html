@@ -1,12 +1,62 @@
 {% extends 'base.html' %}
 {% block content %}
-<a href="{% url 'create-blog' %}">BLOG CREATE</a>
-{% for blog in blogs %}
-<p><a href="{% url 'detail-blog' blog.pk  %}">Title:{{ blog.title }}</a></p>
-<p>description:{{ blog.description }}</p>
-<p>AUthor:{{ blog.owner.username }}</p>
 
-<hr>
-{% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ul>
+
+    {% for product in blogs %}
+
+        <li>{{ product.title }} - {{ product.description }}</li>
+
+    {% endfor %}
+
+</ul>
+
+
+<!-- Sahifalash tugmalari -->
+
+<div>
+
+    {% if blogs.has_previous %}
+
+        <a href="?q={{ query }}&page=1">Birinchi</a>
+
+        <a href="?q={{ query }}&page={{ blogs.previous_page_number }}">Oldingi</a>
+
+    {% endif %}
+
+
+    Sahifa {{ blogs.number }} / {{ blogs.paginator.num_pages }}
+
+
+    {% if blogs.has_next %}
+
+        <a href="?q={{ query }}&page={{ blogs.next_page_number }}">Keyingi</a>
+
+        <a href="?q={{ query }}&page={{ blogs.paginator.num_pages }}">Oxirgi</a>
+
+    {% endif %}
+
+</div>
 
 {% endblock %}

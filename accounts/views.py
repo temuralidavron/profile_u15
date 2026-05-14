@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
@@ -136,7 +138,27 @@ def forget_password(request):
 
 
 def done_password(request):
-    name=request.GET.get('name')
+    username=request.GET.get('name')
+    if request.method=='POST':
+        form=DonePasswordForm(request.POST)
+        if form.is_valid():
+            password=form.cleaned_data.get('password')
+            code=form.cleaned_data.get('code')
+            print(code)
+            # c=Code.objects.get(id=1)
+            # print(c.expire_date)
+            user=CustomUser.objects.get(username=username)
+            code_user=Code.objects.filter(user=user,expire_date__gt=datetime.now(),code=code).first()
+            print(code_user,datetime.now(),code_user.code,code_user.expire_date)
+            if code_user:
+                user.set_password(password)
+                user.save()
+                login(request,user)
+                return redirect('list')
+            else:
+                return redirect("login")
+
+
     form=DonePasswordForm()
     return render(request,"accounts/done.html",{'form':form})
 

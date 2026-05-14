@@ -1,4 +1,6 @@
 from django.contrib.auth.decorators import permission_required
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import render,redirect
 # from accounts.utils import send_simple_email
 from accounts.permissions import login_user, admin_permission
@@ -6,8 +8,27 @@ from .models import Blog
 from .forms import BlogForm
 # Create your views here.
 def get_blog(request):
+    search=request.GET.get('q',None)
     blogs=Blog.objects.all()
-    return render(request,'blog/list.html',{'blogs':blogs})
+    if search:
+        blogs=blogs.filter(Q(title__icontains=search) |
+                           Q(description__icontains=search)
+                           )
+    paginator=Paginator(blogs,2)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+
+
+
+    context={
+        'blogs':page_obj,
+
+    }
+
+
+
+    return render(request,'blog/list.html',context)
 
 # @login_user
 def create_blog(request):
