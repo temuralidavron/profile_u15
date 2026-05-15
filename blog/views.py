@@ -1,7 +1,10 @@
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render,redirect
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from openpyxl import Workbook
+
 # from accounts.utils import send_simple_email
 from accounts.permissions import login_user, admin_permission
 from .models import Blog
@@ -14,7 +17,7 @@ def get_blog(request):
         blogs=blogs.filter(Q(title__icontains=search) |
                            Q(description__icontains=search)
                            )
-    paginator=Paginator(blogs,2)
+    paginator=Paginator(blogs,4)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -86,3 +89,44 @@ def delete_blog(request,pk):
         return redirect('list')
     else:
         return render(request,'blog/delete.html',{'blog':blog})
+
+
+
+
+#excel
+def export_blogs_to_excel(request):
+    # Yangi Excel workbook yaratamiz
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Blogs"
+
+    # Sarlavhalar
+    ws.append(["ID", "title", "desc", "owner", "Created at"])
+
+    # Ma’lumotlarni yozish
+    for p in Blog.objects.all():
+        ws.append([p.id, p.title, p.description, p.owner.username, p.created_at.strftime("%Y-%m-%d %H:%M")])
+
+    # Javob sifatida Excel faylni yuboramiz
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename=products.xlsx'
+    wb.save(response)
+    return response
+
+
+
+@login_required
+def like_post(request, post_id):
+   blog = get_object_or_404(Blog, id=post_id)
+
+   if request.method == "POST":
+       if request.user in blog.likes.all():
+           # agar oldin like bosgan bo'lsa, like olib tashlanadi
+           blog.likes.remove(request.user)
+       else:
+           # agar like bosmagan bo'lsa, like qo'shiladi
+           blog.likes.add(request.user)
+
+   return redirect('list')
