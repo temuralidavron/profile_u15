@@ -11,3 +11,6 @@ class BlogForm(forms.ModelForm):
             # 'owner'
 
         ]
+
+    # def save(self, commit = True):
+    #     owner=self.cleaned_data.get('')
